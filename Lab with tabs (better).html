@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 1 — Thinking Like a Data Analyst in Cybersecurity</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1a2e;
+    --paper: #f8f7f3;
+    --accent: #1b6ca8;
+    --accent-light: #deedf8;
+    --accent-dark: #0e3f66;
+    --warm: #c0392b;
+    --warm-light: #fce4e1;
+    --green: #1e8449;
+    --green-light: #d5f5e3;
+    --border: #d4cfc6;
+    --muted: #6b6b7b;
+    --code-bg: #f0ede6;
+    --shadow: 0 2px 20px rgba(26,26,46,0.06);
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); line-height: 1.7; font-size: 16px; }
+  .lab-header { background: linear-gradient(135deg, #0e1628 0%, #1a2744 50%, #1b3a5c 100%); color: white; padding: 2.5rem 2rem 0; position: relative; overflow: hidden; }
+  .lab-header::before { content: ''; position: absolute; top: -30%; right: -8%; width: 500px; height: 500px; background: radial-gradient(circle, rgba(27,108,168,0.3) 0%, transparent 70%); border-radius: 50%; }
+  .lab-header::after { content: ''; position: absolute; bottom: -40%; left: 15%; width: 350px; height: 350px; background: radial-gradient(circle, rgba(192,57,43,0.12) 0%, transparent 70%); border-radius: 50%; }
+  .header-inner { max-width: 960px; margin: 0 auto; position: relative; z-index: 1; }
+  .lab-tag { display: inline-block; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 0.25rem 0.85rem; border-radius: 100px; font-size: 0.8rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 0.75rem; }
+  .lab-header h1 { font-family: 'DM Serif Display', serif; font-size: 2.2rem; font-weight: 400; line-height: 1.2; margin-bottom: 0.5rem; }
+  .lab-header .subtitle { opacity: 0.8; font-size: 1rem; max-width: 640px; line-height: 1.6; margin-bottom: 1.5rem; }
+  .tab-bar { display: flex; gap: 0; max-width: 960px; margin: 0 auto; position: relative; z-index: 2; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab-btn { background: rgba(255,255,255,0.06); border: none; color: rgba(255,255,255,0.55); padding: 0.75rem 1.25rem; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.25s; white-space: nowrap; border-bottom: 2px solid transparent; }
+  .tab-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.8); }
+  .tab-btn.active { background: var(--paper); color: var(--ink); border-bottom: 2px solid var(--accent); border-radius: var(--radius) var(--radius) 0 0; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .lab-body { max-width: 960px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+  .lab-section { margin-bottom: 2.5rem; }
+  .section-number { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; font-weight: 500; color: var(--accent); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+  .lab-section h2 { font-family: 'DM Serif Display', serif; font-size: 1.55rem; font-weight: 400; margin-bottom: 1rem; }
+  .lab-section h3 { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.6rem; }
+  .lab-section p { margin-bottom: 0.85rem; color: #3a3a4a; }
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-light); padding: 1rem 1.25rem; border-radius: 0 var(--radius) var(--radius) 0; margin: 1.25rem 0; font-size: 0.95rem; }
+  .callout.warn { background: var(--warm-light); border-left-color: var(--warm); }
+  .callout.green { background: var(--green-light); border-left-color: var(--green); }
+  .callout strong { display: block; margin-bottom: 0.2rem; font-weight: 600; }
+  .howto-panel { background: white; border: 1px solid var(--border); border-radius: var(--radius); margin: 1.25rem 0; overflow: hidden; box-shadow: var(--shadow); }
+  .howto-toggle { width: 100%; background: #f5f3ee; border: none; padding: 0.85rem 1.25rem; display: flex; align-items: center; justify-content: space-between; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; font-weight: 600; color: var(--ink); transition: background 0.2s; }
+  .howto-toggle:hover { background: #edeae3; }
+  .howto-toggle .arrow { transition: transform 0.3s; font-size: 0.8rem; color: var(--muted); }
+  .howto-toggle.open .arrow { transform: rotate(180deg); }
+  .howto-content { display: none; padding: 1.25rem; border-top: 1px solid var(--border); font-size: 0.94rem; line-height: 1.7; }
+  .howto-content.open { display: block; }
+  .howto-content h4 { font-size: 0.95rem; font-weight: 600; margin: 1.2rem 0 0.4rem; color: var(--accent-dark); }
+  .howto-content h4:first-child { margin-top: 0; }
+  .howto-content p { margin-bottom: 0.6rem; color: #3a3a4a; }
+  .howto-content ol, .howto-content ul { margin: 0.4rem 0 0.8rem 1.5rem; color: #3a3a4a; }
+  .howto-content li { margin-bottom: 0.3rem; }
+  .howto-content code { background: var(--code-bg); padding: 0.15rem 0.45rem; border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; }
+  .content-list { margin: 0.5rem 0 1rem 1.5rem; color: #3a3a4a; }
+  .content-list li { margin-bottom: 0.3rem; }
+  .formula-block { background: var(--ink); color: #e0ddd5; font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; padding: 0.85rem 1.15rem; border-radius: var(--radius); margin: 0.75rem 0; overflow-x: auto; }
+  .sheet-embed { background: white; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); margin: 1.5rem 0; }
+  .sheet-embed-bar { background: #f5f3ee; border-bottom: 1px solid var(--border); padding: 0.6rem 1rem; font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.6rem; }
+  .sheet-embed-bar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); opacity: 0.5; }
+  .sheet-embed iframe { width: 100%; height: 420px; border: none; }
+  .dataset-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.93rem; }
+  .dataset-table th { text-align: left; background: var(--accent-light); padding: 0.6rem 1rem; font-weight: 600; border-bottom: 2px solid var(--accent); font-size: 0.85rem; }
+  .dataset-table td { padding: 0.55rem 1rem; border-bottom: 1px solid var(--border); color: #3a3a4a; }
+  .dataset-table td code { background: var(--code-bg); padding: 0.1rem 0.4rem; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 0.83rem; }
+  .objectives-list { list-style: none; margin: 0.75rem 0; }
+  .objectives-list li { padding: 0.4rem 0 0.4rem 1.75rem; position: relative; color: #3a3a4a; }
+  .objectives-list li::before { content: '\2713'; position: absolute; left: 0; top: 0.4rem; color: var(--green); font-weight: 700; font-size: 0.9rem; }
+  .question-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; box-shadow: var(--shadow); position: relative; }
+  .question-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, var(--accent), var(--warm)); border-radius: var(--radius) var(--radius) 0 0; }
+  .q-label { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 500; color: var(--warm); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .question-card .q-title { font-size: 1.02rem; font-weight: 600; margin-bottom: 0.75rem; line-height: 1.5; }
+  .question-card textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 0.65rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; line-height: 1.6; transition: border-color 0.2s; background: var(--paper); resize: vertical; min-height: 90px; }
+  .question-card textarea.tall { min-height: 130px; }
+  .question-card textarea:focus { outline: none; border-color: var(--accent); background: white; }
+  .student-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .student-field { flex: 1; min-width: 220px; }
+  .student-field label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.3rem; color: var(--ink); }
+  .student-field input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 0.6rem 1rem; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; background: white; transition: border-color 0.2s; }
+  .student-field input:focus { outline: none; border-color: var(--accent); }
+  .workspace-guide { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; box-shadow: var(--shadow); }
+  .workspace-guide h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 0.75rem; }
+  .workspace-guide p { color: #3a3a4a; margin-bottom: 0.6rem; font-size: 0.94rem; }
+  .ws-option { margin-bottom: 0.75rem; }
+  .ws-option strong { color: var(--ink); }
+  .ws-option p { margin-bottom: 0.2rem; }
+  .ws-divider { border: none; border-top: 1px solid var(--border); margin: 0.75rem 0; }
+  kbd { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; background: var(--code-bg); border: 1px solid var(--border); padding: 0.1rem 0.4rem; border-radius: 4px; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .nav-row { display: flex; justify-content: space-between; margin-top: 2rem; }
+  .nav-btn { display: inline-flex; align-items: center; gap: 0.5rem; border: none; padding: 0.85rem 2.2rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; border-radius: 100px; cursor: pointer; transition: all 0.25s; }
+  .nav-btn:hover { transform: translateY(-1px); }
+  .nav-btn.next { background: var(--accent); color: white; box-shadow: 0 4px 15px rgba(14,63,102,0.25); }
+  .nav-btn.next:hover { background: var(--accent-dark); }
+  .nav-btn.prev { background: var(--muted); color: white; }
+  .nav-btn.prev:hover { background: #555568; }
+  .submit-section { text-align: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .submit-btn { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--accent-dark); color: white; border: none; padding: 0.85rem 2.2rem; font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 600; border-radius: 100px; cursor: pointer; transition: all 0.25s; box-shadow: 0 4px 15px rgba(14,63,102,0.25); }
+  .submit-btn:hover { background: var(--accent); transform: translateY(-1px); }
+  .submit-note { font-size: 0.82rem; color: var(--muted); margin-top: 0.75rem; }
+  .confirmation-code { font-family: 'JetBrains Mono', monospace; font-size: 1.15rem; font-weight: 700; color: var(--green); background: var(--green-light); border: 1px solid #a3dfb8; border-radius: 8px; padding: 0.65rem 1.5rem; display: none; margin-top: 1rem; letter-spacing: 0.1em; }
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--accent-dark); color: white; padding: 0.85rem 1.5rem; border-radius: 100px; font-size: 0.95rem; font-weight: 500; box-shadow: 0 8px 30px rgba(0,0,0,0.2); opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 999; }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  @media (max-width: 700px) {
+    .lab-header { padding: 1.5rem 1.25rem 0; }
+    .lab-header h1 { font-size: 1.6rem; }
+    .lab-body { padding: 1.5rem 1.25rem 3rem; }
+    .tab-btn { padding: 0.6rem 0.9rem; font-size: 0.8rem; }
+    .student-bar { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<header class="lab-header">
+  <div class="header-inner">
+    <span class="lab-tag">Week 1 Homework Lab</span>
+    <h1>Thinking Like a Data Analyst in Cybersecurity</h1>
+    <p class="subtitle">Explore a small cybersecurity dataset, ask structured questions, identify patterns, and reflect on uncertainty and bias in data-driven decision-making.</p>
+  </div>
+  <div class="tab-bar">
+    <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab-btn" onclick="switchTab('part1')">Part 1: Familiarization</button>
+    <button class="tab-btn" onclick="switchTab('part2')">Part 2: Analysis</button>
+    <button class="tab-btn" onclick="switchTab('part3')">Part 3: Patterns</button>
+    <button class="tab-btn" onclick="switchTab('part4')">Part 4: Reflection</button>
+    <button class="tab-btn" onclick="switchTab('submit')">Submit</button>
+  </div>
+</header>
+
+<div class="tab-content active" id="tab-overview">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Overview</div>
+    <h2>Purpose</h2>
+    <p>The purpose of this lab is to introduce students to the analytical mindset required in data science and cybersecurity. You will explore a small cybersecurity dataset, ask structured questions, identify patterns, and reflect on uncertainty and bias in data-driven decision-making.</p>
+    <p>This lab does not require programming.</p>
+    <h3>Learning Objectives</h3>
+    <p>By completing this lab, students will be able to:</p>
+    <ul class="objectives-list">
+      <li>Identify meaningful questions that can be asked of cybersecurity data.</li>
+      <li>Perform basic exploratory analysis using spreadsheet tools.</li>
+      <li>Identify simple patterns and anomalies in a dataset.</li>
+      <li>Recognize limitations and uncertainty in data interpretation.</li>
+      <li>Communicate findings clearly in writing.</li>
+    </ul>
+  </section>
+  <section class="lab-section">
+    <h3>Dataset Description</h3>
+    <p>The dataset contains simplified login activity records with the following fields:</p>
+    <table class="dataset-table">
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>timestamp</code></td><td>Date and time of the login event</td></tr>
+        <tr><td><code>username</code></td><td>The user account involved</td></tr>
+        <tr><td><code>source_ip</code></td><td>IP address the login originated from</td></tr>
+        <tr><td><code>login_status</code></td><td>Success or Failure</td></tr>
+        <tr><td><code>location</code></td><td>Location associated with the login</td></tr>
+      </tbody>
+    </table>
+    <p>The dataset simulates authentication activity for a small organization over a 48-hour period.</p>
+  </section>
+  <hr class="section-divider">
+  <section class="lab-section">
+    <div class="section-number">Getting Started</div>
+    <h2>Open the Dataset</h2>
+    <p>The login activity dataset is hosted in Google Sheets. Before you begin your analysis, you need to make your own copy so you can sort, filter, and modify it freely.</p>
+    <div class="callout">
+      <strong>Before you begin</strong>
+      Click the link below the preview to open the full Google Sheet. Then click <strong>File &rarr; Make a copy</strong> to save it to your own Google Drive. You will work in your personal copy throughout this lab.
+    </div>
+    <div class="sheet-embed">
+      <div class="sheet-embed-bar">
+        <span class="dot"></span>
+        Google Sheets &mdash; Login Activity Data (48-Hour Window)
+      </div>
+      <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTlVKcN7st0G2sqyN594_FuLz6zCTH-074OyhQRYQAR1a3l-MFtwMN1nxPavyV4CHUZUSoofGK4BRSK/pubhtml"></iframe>
+    </div>
+    <p style="margin-top: 0.75rem;">
+      <a href="https://docs.google.com/spreadsheets/d/1qxQ0Z8hY8awo__TuN78zoRWwkocFnKDPH_8lt06cLzw/edit?usp=sharing" target="_blank" style="color: var(--accent); font-weight: 500; margin-bottom: 0.5rem;">For Chrome browsers: Open full sheet in new tab (RECOMMENDED)</a>
+	    <br>
+		<p href="#" onclick="window.open('https://docs.google.com/spreadsheets/d/1qxQ0Z8hY8awo__TuN78zoRWwkocFnKDPH_8lt06cLzw/edit?usp=sharing','SheetsWindow','width='+Math.floor(screen.availWidth/2)+',height='+screen.availHeight); return false;" style="color: var(--muted);">For other browsers: Open in a new window instead</p>
+<!--	    <p style="color: #1B1B1B; font-weight: 600; font-size: 1.2rem; margin-top: 2rem;">To use the file:  <br>Click the link, this will open a read only version of the file. To make a copy &rarr; "File" &rarr; "Make a copy"</p>-->
+
+		<ol style="color: #1B1B1B; font-weight: 600; font-size: 1.2rem; margin-top: 2rem;">To use the file:
+			<li style="margin-left: 2rem; margin-top: 0.5rem; font-size: 1.1rem; font-weight: 550;">Click the link, this will open a read only version of the file. </li>
+			<li style="margin-left: 2rem; margin-top: 0.5rem; font-size: 1.1rem; font-weight: 550;">To make a copy &rarr; "File" &rarr; "Make a copy"</li>
+		</ol>
+    
+    </p>
+<!--    <div class="callout warn" style="margin-top: 1rem;">-->
+<!--      <strong>If everything appears in one column</strong>-->
+<!--      The delimiter was not set correctly. In your copy, click <strong>Data &rarr; Split text to columns</strong> and choose Comma as the separator.-->
+<!--    </div>-->
+  </section>
+  <hr class="section-divider">
+  <section class="lab-section">
+    <div class="section-number">Workspace</div>
+    <h2>Set Up Side-by-Side Windows</h2>
+    <p>You will work most efficiently with Google Sheets and this lab page side by side. Once you have your copy of the sheet open in a new tab, use one of the methods below to arrange the two windows. We recommend using Chrome for the best experience.</p>
+    <div class="workspace-guide">
+      <h3>Arranging Your Windows</h3>
+	  <br>
+	  <h2>For Chrome (with Google Sheets open in a new tab)</h2>
+	  <div class="ws-option">
+      <p>With this page as your current tab, right click on the Google Sheets tab and select "New split view with current tab."<br>To undo the split view, you can right-click the tabs again &rarr;"Arrange split view"&rarr;"Separate Views"</p>
+      </div>
+	  <br>
+	  <h2>For other browsers (with Google Sheets opened in a new window)</h2>
+      <div class="ws-option">
+        <p><strong>Windows Key shortcut</strong> &mdash; Click on one window and press <kbd>Win</kbd> + <kbd>&larr;</kbd> to snap it to the left half of your screen. Click the other window and press <kbd>Win</kbd> + <kbd>&rarr;</kbd> to snap it to the right half.</p>
+      </div>
+      <hr class="ws-divider">
+      <div class="ws-option">
+        <p><strong>Hover the maximize button (Windows 11)</strong> &mdash; Hover your mouse over the maximize button (the square icon in the top-right corner of any window). A grid of layout options will appear. Choose a left/right split, then select your other window for the remaining half.</p>
+      </div>
+      <hr class="ws-divider">
+      <div class="ws-option">
+        <p><strong>Drag to screen edge</strong> &mdash; Drag a window by its title bar toward the left or right edge of your screen. When a highlight zone appears, release the mouse. On Windows 11, dragging toward the top of the screen will show a layout picker. Repeat with your other window on the opposite side.</p>
+      </div>
+      <hr class="ws-divider">
+      <div class="ws-option">
+        <p><strong>Mac Split View</strong> &mdash; Hover over or click and hold the green button in the top-left corner of a window. Choose "Tile Window to Left of Screen," then click the other window to fill the right half.</p>
+      </div>
+      <hr class="ws-divider">
+      <div class="ws-option">
+        <p><strong>Chromebook</strong> &mdash; Press <kbd>Alt</kbd> + <kbd>[</kbd> to snap a window to the left, or <kbd>Alt</kbd> + <kbd>]</kbd> to snap it to the right.</p>
+      </div>
+      <hr class="ws-divider">
+      <div class="ws-option">
+        <p><strong>Small screen or tablet</strong> &mdash; If side-by-side is not practical, keep Google Sheets open in a separate browser tab and switch back and forth.</p>
+      </div>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>Your Information</h3>
+    <div class="student-bar">
+      <div class="student-field">
+        <label>Full Name</label>
+        <input type="text" id="studentName" placeholder="Jane Doe">
+      </div>
+      <div class="student-field">
+        <label>Email</label>
+        <input type="email" id="studentEmail" placeholder="jdoe@university.edu">
+      </div>
+    </div>
+  </section>
+  <div style="text-align:center; margin-top: 2rem;">
+    <button class="nav-btn next" onclick="switchTab('part1')">Begin Part 1 &rarr;</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-part1">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Part 1</div>
+    <h2>Data Familiarization</h2>
+    <p>Before analyzing patterns, you must first understand the structure and scope of the dataset. Use your personal copy of the Google Sheet to complete the steps below.</p>
+  </section>
+  <section class="lab-section">
+    <h3>A. Determine the Total Number of Records</h3>
+    <p>The total number of records is the total number of rows of data, not including the header row.</p>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <ol>
+          <li>Open the dataset in Google Sheets.</li>
+          <li>Locate the first row of actual data (usually Row 2, since Row 1 contains column headers).</li>
+          <li>Scroll to the bottom of the dataset, or click any data cell and press <code>Ctrl + Shift + ↓</code> (Windows) or <code>⌘ + Shift + ↓</code> (Mac).</li>
+          <li>Identify the row number of the final data entry.</li>
+          <li>Subtract 1 to account for the header row.</li>
+        </ol>
+        <p><strong>Example:</strong> If the last row is 201, the dataset contains 200 records.</p>
+        <p>If the shortcut stops early, scroll manually to confirm.</p>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 1A</div>
+      <div class="q-title">How many total records are in the dataset? State your answer in a complete sentence.</div>
+      <textarea id="q_p1a" placeholder="The dataset contains..."></textarea>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>B. Identify the Total Number of Unique Users</h3>
+    <p>Determine how many different users appear in the dataset. Understanding the number of unique users helps contextualize login activity patterns and prepares you for grouping and aggregation tasks later in the course.</p>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <h4>Method 1 — Remove Duplicates (Recommended)</h4>
+        <ol>
+          <li>Highlight the entire <strong>username</strong> column.</li>
+          <li>Click <strong>Data → Data cleanup → Remove duplicates</strong>.</li>
+          <li>Record the number of unique values displayed.</li>
+          <li>Immediately undo (<code>Ctrl + Z</code> / <code>⌘ + Z</code>) to restore the dataset.</li>
+        </ol>
+        <h4>Method 2 — Pivot Table (Optional)</h4>
+        <p>This method introduces grouping and aggregation, which you will use later in the course when working in Python and R.</p>
+        <ol>
+          <li>Highlight the entire dataset.</li>
+          <li>Click <strong>Insert → Pivot table</strong>.</li>
+          <li>Add <strong>username</strong> to the Rows section.</li>
+          <li>Add <strong>username</strong> to the Values section (set to COUNTA).</li>
+          <li>Count the number of unique usernames listed in the Rows area.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 1B</div>
+      <div class="q-title">How many unique users are in the dataset? State your answer in a complete sentence.</div>
+      <textarea id="q_p1b" placeholder="There are..."></textarea>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>C. Identify Number of Successful vs. Failed Logins</h3>
+    <p>Count how many records show a Success login status and how many show Failure.</p>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <h4>Using the Filter Tool (Recommended)</h4>
+        <ol>
+          <li>Highlight the dataset.</li>
+          <li>Click <strong>Data → Create a filter</strong>.</li>
+          <li>Click the filter icon (▼) in the <strong>login_status</strong> column header.</li>
+          <li>Select only "Success" — count the visible rows.</li>
+          <li>Repeat for "Failure."</li>
+        </ol>
+        <h4>Optional — COUNTIF Formula</h4>
+        <p>In an empty cell, type:</p>
+        <div class="formula-block">=COUNTIF(D:D, "Success")</div>
+        <p>Where column D contains the login status. Repeat for "Failure."</p>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 1C</div>
+      <div class="q-title">How many successful logins and how many failed logins are in the dataset? State your answer in complete sentences.</div>
+      <textarea id="q_p1c" placeholder="There are... successful logins and... failed logins."></textarea>
+    </div>
+  </section>
+  <div class="nav-row">
+    <button class="nav-btn prev" onclick="switchTab('overview')">← Overview</button>
+    <button class="nav-btn next" onclick="switchTab('part2')">Part 2 →</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-part2">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Part 2</div>
+    <h2>Identifying Patterns in Login Activity</h2>
+    <p>Now that you understand the basic structure of the dataset, you will begin identifying meaningful patterns. Use sorting and filtering tools in your Google Sheet — no advanced formulas required.</p>
+    <p>For each question: <strong>state what you found</strong> and <strong>explain why it may or may not be suspicious.</strong></p>
+  </section>
+  <section class="lab-section">
+    <h3>A. Top 3 Users with the Highest Number of Failed Login Attempts</h3>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <h4>Step 1 — Filter for Failed Logins</h4>
+        <ol>
+          <li>Highlight the dataset and click <strong>Data → Create a filter</strong>.</li>
+          <li>Click the filter icon in the <strong>login_status</strong> column.</li>
+          <li>Select only "Failure."</li>
+        </ol>
+        <h4>Step 2 — Count Failures by Username (Pivot Table)</h4>
+        <ol>
+          <li>Highlight the filtered dataset.</li>
+          <li>Click <strong>Insert → Pivot table</strong>.</li>
+          <li>Place <strong>username</strong> in the Rows section.</li>
+          <li>Place <strong>username</strong> again in the Values section (set to COUNTA).</li>
+          <li>Sort from highest to lowest.</li>
+          <li>Identify the top 3 users.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 2A</div>
+      <div class="q-title">Who are the top 3 usernames with the highest number of failed login attempts? Why might a high number of failed attempts be suspicious?</div>
+      <textarea id="q_p2a" class="tall" placeholder="State the usernames and counts, then explain why this may or may not be suspicious..."></textarea>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>B. Unusually Frequent IP Addresses</h3>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <h4>Step 1 — Clear Filters</h4>
+        <p>Remove any active login status filter first. Ensure all records are visible.</p>
+        <h4>Step 2 — Count by Source IP (Pivot Table)</h4>
+        <ol>
+          <li>Highlight the full dataset.</li>
+          <li>Click <strong>Insert → Pivot table</strong>.</li>
+          <li>Place <strong>source_ip</strong> in Rows.</li>
+          <li>Place <strong>source_ip</strong> in Values (COUNTA).</li>
+          <li>Sort from highest to lowest.</li>
+        </ol>
+        <h4>Step 3 — Analyze</h4>
+        <p>Record the most frequent IP address and how many times it appears. Is it associated mostly with failures or successes?</p>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 2B</div>
+      <div class="q-title">What is the most frequent IP address and how many times does it appear? Is it associated mostly with failures or successes? Does high frequency automatically mean malicious behavior?</div>
+      <textarea id="q_p2b" class="tall" placeholder="Record the IP, its count, and analyze whether high frequency is inherently suspicious..."></textarea>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>C. Activity Outside Normal Business Hours</h3>
+    <p>Assume business hours are 8:00 AM – 6:00 PM.</p>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <ol>
+          <li>Examine the <strong>timestamp</strong> column — look at the time portion of each entry.</li>
+          <li>Sort by timestamp to make it easier to scan for off-hours activity.</li>
+          <li>Identify any logins before 8:00 AM or after 6:00 PM.</li>
+          <li>Note whether those logins were successes or failures, and which users are involved.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 2C</div>
+      <div class="q-title">How many logins occurred outside business hours? Were they mostly successes or failures, and were they associated with specific users? Is after-hours access automatically suspicious? What contextual information would you need before escalating?</div>
+      <textarea id="q_p2c" class="tall" placeholder="Describe what you found and discuss whether after-hours activity is inherently suspicious..."></textarea>
+    </div>
+  </section>
+  <section class="lab-section">
+    <h3>D. Suspicious Sequences</h3>
+    <p>Look for patterns such as:</p>
+    <ul class="content-list">
+      <li>Multiple failures followed by a success for the same user.</li>
+      <li>One IP attempting multiple usernames.</li>
+      <li>Rapid repeated login attempts.</li>
+    </ul>
+    <div class="howto-panel">
+      <button class="howto-toggle" onclick="toggleHowto(this)"><span>How to do this in Google Sheets</span><span class="arrow">&#9660;</span></button>
+      <div class="howto-content">
+        <ol>
+          <li>Sort the dataset by <strong>username</strong> first, then by <strong>timestamp</strong>.</li>
+          <li>Look for clusters of failures followed by a success for the same user.</li>
+          <li>Also look for a single IP address attempting logins across multiple different usernames.</li>
+          <li>Record one example if found.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="q-label">Part 2D</div>
+      <div class="q-title">Did you find any user with multiple failures followed by a success? Describe the pattern you found. Does this pattern suggest compromise, or could it have a benign explanation?</div>
+      <textarea id="q_p2d" class="tall" placeholder="Describe the sequence you found and discuss possible explanations..."></textarea>
+    </div>
+  </section>
+  <div class="nav-row">
+    <button class="nav-btn prev" onclick="switchTab('part1')">← Part 1</button>
+    <button class="nav-btn next" onclick="switchTab('part3')">Part 3 →</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-part3">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Part 3</div>
+    <h2>Pattern Recognition</h2>
+    <p>Answer the following in paragraph form. Use your observations from Parts 1 and 2 to support your reasoning.</p>
+  </section>
+  <div class="question-card">
+    <div class="q-label">Part 3 — Question 1</div>
+    <div class="q-title">What patterns stand out to you in this dataset?</div>
+    <textarea id="q_p3a" class="tall" placeholder="Write your response in paragraph form..."></textarea>
+  </div>
+  <div class="question-card">
+    <div class="q-label">Part 3 — Question 2</div>
+    <div class="q-title">If you were a security analyst, which activity would you investigate first? And why?</div>
+    <textarea id="q_p3b" class="tall" placeholder="Write your response in paragraph form..."></textarea>
+  </div>
+  <div class="question-card">
+    <div class="q-label">Part 3 — Question 3</div>
+    <div class="q-title">What additional data would help you make a stronger decision?</div>
+    <textarea id="q_p3c" class="tall" placeholder="Write your response in paragraph form..."></textarea>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn prev" onclick="switchTab('part2')">← Part 2</button>
+    <button class="nav-btn next" onclick="switchTab('part4')">Part 4 →</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-part4">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Part 4</div>
+    <h2>Uncertainty &amp; Bias Reflection</h2>
+    <p>Now that you have explored and analyzed the data, reflect on the limitations of data-driven decision-making. Answer in paragraph form.</p>
+  </section>
+  <div class="question-card">
+    <div class="q-label">Part 4 — Question 1</div>
+    <div class="q-title">Can you conclude with certainty that any account was compromised? Why or why not?</div>
+    <textarea id="q_p4a" class="tall" placeholder="Write your response..."></textarea>
+  </div>
+  <div class="question-card">
+    <div class="q-label">Part 4 — Question 2</div>
+    <div class="q-title">What assumptions are you making when interpreting this data?</div>
+    <textarea id="q_p4b" class="tall" placeholder="Write your response..."></textarea>
+  </div>
+  <div class="question-card">
+    <div class="q-label">Part 4 — Question 3</div>
+    <div class="q-title">How could missing or incomplete data affect your conclusions?</div>
+    <textarea id="q_p4c" class="tall" placeholder="Write your response..."></textarea>
+  </div>
+  <div class="nav-row">
+    <button class="nav-btn prev" onclick="switchTab('part3')">← Part 3</button>
+    <button class="nav-btn next" onclick="switchTab('submit')">Review &amp; Submit →</button>
+  </div>
+</div>
+</div>
+
+<div class="tab-content" id="tab-submit">
+<div class="lab-body">
+  <section class="lab-section">
+    <div class="section-number">Submit</div>
+    <h2>Review &amp; Submit Your Responses</h2>
+    <div class="callout green">
+      <strong>Deliverable Reminder</strong>
+      Your submission should include: answers to Parts 1 and 2, paragraph responses to Parts 3 and 4, and clear explanations (complete sentences required).
+    </div>
+    <p>Review your answers below. Click on any section to go back and edit. When you are satisfied, click <strong>Submit Lab Responses</strong> at the bottom.</p>
+  </section>
+  <div id="reviewContainer"></div>
+  <div class="submit-section">
+    <div id="submitStatus" style="margin-bottom: 0.75rem; font-size: 0.95rem;"></div>
+    <button class="submit-btn" id="submitBtn" onclick="submitLab()">
+      <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Submit Lab Responses
+    </button>
+    <p class="submit-note">Your answers will be sent to the course Google Sheet for grading.</p>
+    <div class="confirmation-code" id="confirmCode"></div>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var questionLabels = {
+  q_p1a: { label: 'Part 1A', title: 'Total Records', tab: 'part1' },
+  q_p1b: { label: 'Part 1B', title: 'Unique Users', tab: 'part1' },
+  q_p1c: { label: 'Part 1C', title: 'Success vs. Failure', tab: 'part1' },
+  q_p2a: { label: 'Part 2A', title: 'Top Failed Logins', tab: 'part2' },
+  q_p2b: { label: 'Part 2B', title: 'Frequent IPs', tab: 'part2' },
+  q_p2c: { label: 'Part 2C', title: 'After-Hours Activity', tab: 'part2' },
+  q_p2d: { label: 'Part 2D', title: 'Suspicious Sequences', tab: 'part2' },
+  q_p3a: { label: 'Part 3-Q1', title: 'Standout Patterns', tab: 'part3' },
+  q_p3b: { label: 'Part 3-Q2', title: 'Investigation Priority', tab: 'part3' },
+  q_p3c: { label: 'Part 3-Q3', title: 'Additional Data Needed', tab: 'part3' },
+  q_p4a: { label: 'Part 4-Q1', title: 'Certainty of Compromise', tab: 'part4' },
+  q_p4b: { label: 'Part 4-Q2', title: 'Assumptions', tab: 'part4' },
+  q_p4c: { label: 'Part 4-Q3', title: 'Missing Data Impact', tab: 'part4' }
+};
+var allFieldIds = Object.keys(questionLabels);
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  var tab = document.getElementById('tab-' + tabId);
+  if (tab) tab.classList.add('active');
+  var btns = document.querySelectorAll('.tab-btn');
+  var tabNames = ['overview', 'part1', 'part2', 'part3', 'part4', 'submit'];
+  var idx = tabNames.indexOf(tabId);
+  if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+  if (tabId === 'submit') buildReview();
+  window.scrollTo(0, 0);
+}
+
+function buildReview() {
+  var container = document.getElementById('reviewContainer');
+  var html = '';
+  var answered = 0;
+  allFieldIds.forEach(function(id) {
+    var info = questionLabels[id];
+    var el = document.getElementById(id);
+    var val = el ? el.value.trim() : '';
+    if (val) answered++;
+    var empty = !val;
+    html += '<div class="question-card" style="cursor:pointer;' + (empty ? 'border-color:#c0392b;' : '') + '" onclick="switchTab(\'' + info.tab + '\')">';
+    html += '<div class="q-label" style="' + (empty ? 'color:#c0392b;' : '') + '">' + info.label + ' — ' + info.title;
+    html += empty ? ' — NOT ANSWERED' : ' ✓';
+    html += '</div>';
+    if (val) {
+      html += '<p style="color:#3a3a4a;font-size:0.93rem;margin:0;white-space:pre-wrap;">' + escHtml(val.substring(0, 200)) + (val.length > 200 ? '...' : '') + '</p>';
+    } else {
+      html += '<p style="color:#c0392b;font-size:0.93rem;margin:0;">Click to go back and answer this question.</p>';
+    }
+    html += '</div>';
+  });
+  var total = allFieldIds.length;
+  var summary = '<div class="callout' + (answered === total ? ' green' : ' warn') + '" style="margin-bottom:1.5rem;">';
+  summary += '<strong>' + answered + ' of ' + total + ' questions answered</strong>';
+  summary += answered < total ? 'Please answer all questions before submitting. Unanswered questions are highlighted in red — click them to jump to that section.' : 'All questions answered. You are ready to submit!';
+  summary += '</div>';
+  container.innerHTML = summary + html;
+}
+
+function escHtml(str) { var d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+
+function toggleHowto(btn) { btn.classList.toggle('open'); btn.nextElementSibling.classList.toggle('open'); }
+
+function submitLab() {
+  var name = document.getElementById('studentName').value.trim();
+  var email = document.getElementById('studentEmail').value.trim();
+  if (!name || !email) { showToast('Please fill in your name and email on the Overview tab.'); return; }
+  var answers = {};
+  var empty = [];
+  allFieldIds.forEach(function(id) {
+    var val = document.getElementById(id) ? document.getElementById(id).value : '';
+    answers[id] = val;
+    if (!val.trim()) empty.push(id);
+  });
+  if (empty.length > 0) { showToast('Please answer all questions (' + empty.length + ' remaining)'); buildReview(); return; }
+  answers.student_name = name;
+  answers.student_email = email;
+  var ts = Date.now().toString(36).toUpperCase();
+  var rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  var code = 'W1-' + ts.slice(-4) + '-' + rand;
+  answers.confirmation_code = code;
+
+  fetch('https://script.google.com/macros/s/AKfycbwumaW_6XmXN7qTKohTGiLusmQ4Eh9Yn8qI94gduWN8aBrCDtqTy8fYt5z65kPvPsj4vg/exec', {
+    method: 'POST', mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(answers)
+  }).then(function() {
+    document.getElementById('submitStatus').innerHTML = '<span style="color:#1e8449;font-weight:600;">Lab submitted successfully!</span>';
+    document.getElementById('confirmCode').style.display = 'inline-block';
+    document.getElementById('confirmCode').textContent = code;
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('submitBtn').style.opacity = '0.5';
+    document.getElementById('submitBtn').style.cursor = 'default';
+    showToast('Submitted! Confirmation: ' + code);
+  }).catch(function(err) {
+    showToast('Submission error — please try again.');
+    console.error(err);
+  });
+}
+
+function showToast(msg) {
+  var toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(function() { toast.classList.remove('show'); }, 4000);
+}
+</script>
+</body>
+</html>
